@@ -27,27 +27,18 @@
 	import {useRouter} from 'vue-router'
 	import Sidebar from '../layout/sidebar/Sidebar.vue'
 
-	// const userStore = useUserStoreHook()
-	// const {
-	// 	token
-	// } = storeToRefs(userStore)
+
 
 	const router = useRouter()
-	console.log(router.getRoutes())
+	//console.log(router.getRoutes())
 	const routes = computed(() => {
 		let rts = router.getRoutes().filter(r => r.meta.isShow && r.meta.parentId == 1)
-		console.log(rts)
+		
 		return rts;
 	})
 	
-	// const logOut = () => {
-	// 	userStore.logOut()
-	// }
-
 	onMounted(() => {
-		//console.log(1,userStore)
-		//console.log(router)
-		// console.log(JSON.parse(sessionStorage.getItem('user')).token)
+		
 	})
 </script>
 <style scoped>

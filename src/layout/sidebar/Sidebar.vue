@@ -38,8 +38,10 @@
 	
 	const activeItem = ref('')
 	
-	function hasSelect(index){
-		console.log(index)
+	function hasSelect(index,indexPath,item){
+		// console.log(index)
+		// console.log(indexPath)
+		// console.log(item)
 		sessionStorage.setItem("activeMenu",index)
 	}
 	

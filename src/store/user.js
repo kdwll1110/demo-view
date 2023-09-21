@@ -24,29 +24,4 @@ export const useUserStore = defineStore({
 	}
 })
 
-// function login(loginInfo) {
-	// 	return new Promise((resolve, reject) => {
-	// 		axios.post('/user/login', loginInfo.value).then(async res => {
-	// 			sessionStorage.setItem('token', res.data.token)
-	// 			token.value = res.data.token
-	// 			await getMenuAndPermisson()
-	// 			resolve()
-	// 		}).catch(err => {
-	// 			reject(err)
-	// 		})
-	// 	})
-	// }
-
-	// function getMenuAndPermisson  () {
-	// 	return new Promise((resolve, reject) => {
-	// 		axios.get('/user/queryMenuByToken')
-	// 			.then(res => {
-	// 				sessionStorage.setItem('menuList', JSON.stringify(res.data.menuList))
-	// 				menuList.value = res.data.menuList
-	// 				resolve()
-	// 			}).catch(err => {
-	// 				reject(err)
-	// 			})
-	// 	})
-	// }
 

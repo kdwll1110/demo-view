@@ -1,7 +1,7 @@
 
 
 import Axios from 'axios'
-
+import {ElMessageBox} from 'element-plus'
 
 
 const req = Axios.create({
@@ -29,6 +29,13 @@ req.interceptors.response.use((response)=>{
 	
 },(err)=>{
 	console.log("响应异常",err)
+	ElMessageBox.confirm("当前页面已失效，请重新登录", "提示", {
+			  confirmButtonText: "确定",
+			  type: "warning",
+			}).then(() => {
+			  sessionStorage.clear();
+			  window.location.href = "/";
+			});
 })
 
 

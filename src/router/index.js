@@ -81,9 +81,10 @@ async function loadAsyncMenu(to,next){
 		 * 直接指定添加到具体的某个路由下，比如Index路由，
 		 * 因为Index有出口，搭配下面的注释3使用即可
 		 */
-		router.addRoute('Index',r)
+		router.addRoute("Index",r)
 		
 	})
+	
 	
 	next({...to,replace:true})
 }
@@ -103,8 +104,8 @@ let modules =import.meta.glob('../views/**/*.vue')
 		//这是注释3，也就是两行代码，无需像注释1一样，还要写判断type是否是目录
 		const compPath = route.component
 		route.component = modules[`../views/${compPath}.vue`]
-		
-		
+
+
 		route.meta = {
 			icon: route.icon,
 			type: route.type,
@@ -125,9 +126,9 @@ let modules =import.meta.glob('../views/**/*.vue')
 
 //4、配置前置路由守卫
 router.beforeEach((to, from, next) => {
-	console.log(from,to)
-	const userStore =useUserStore()
 	
+	const userStore =useUserStore()
+
 	if(to.path === '/login'){
 		sessionStorage.clear()
 		return next()
