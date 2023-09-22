@@ -33,7 +33,7 @@
 			:props="defaultProps" @check-change="checkChangeClick" :default-checked-keys="defaultCheckedKeys"
 			@check="add" />
 		<div class="buttons">
-			<el-button @click="getCheckedKeys()">get by key</el-button>
+			<el-button @click="confirmSetting">确认分配</el-button>
 		</div>
 	</el-dialog>
 
@@ -42,7 +42,8 @@
 <script setup>
 	import {
 		ref,
-		onMounted
+		onMounted,
+		nextTick 
 	} from 'vue'
 	import {
 		loadRoleListByPage
@@ -52,6 +53,7 @@
 		loadMenuByRoleId,
 		editMenuByRoleId
 	} from '@/api/menu.js'
+	import {ElMessage} from 'element-plus'
 
 	const queryForm = ref({
 		name: ''
@@ -116,31 +118,25 @@
 			menuList.value = res.data
 		})
 		await loadMenuByRoleId(role.id).then(res => {
-			//问题在这
-			//console.log(res.data)
-			const a = digui(res.data)
-			console.log(a)
-			//console.log(defaultCheckedKeys.value)
-			//defaultCheckedKeys.value = res.data.map(r => r.id)
+			//生成ids
+			recursiveGenerationIds(res.data)
+			const ids = defaultCheckedKeys.value.map(r=>r.id);
+			ids.forEach((i,n) => {
+			    treeRef.value.setChecked(i, true, false)
+			});
+			
 		})
-
 	}
-
-
-	function digui(list, parentId = 1) {
-		let tree = [];
-		for (let e of list) {
-			if (e.parentId == parentId) {
-				console.log(e)
-				let b = digui(list, e.id);
-				
-				const treeNode = {b};
-				tree.push(treeNode);
+	
+	function recursiveGenerationIds(list) {
+		for (let node of list) {
+			defaultCheckedKeys.value.push(node)
+			if(node.children && node.children.length>0){
+				recursiveGenerationIds(node.children)
 			}
 		}
-		return tree;
 	}
-
+	
 
 
 
@@ -148,17 +144,15 @@
 		defaultCheckedKeys.value = []
 	}
 
-	function getCheckedKeys() {
+	function confirmSetting() {
 		const ids = treeRef.value.getCheckedKeys(false)
 		treeRef.value.getHalfCheckedKeys().forEach(e => {
 			ids.push(e)
 		})
-		console.log(ids)
-		// editMenuByRoleId(roleId.value,ids).then(res=>{
-		// 	console.log(res)
-		// })
-
-
+		editMenuByRoleId(roleId.value,ids).then(res=>{
+			ElMessage.success(res.msg);
+			dialogFormVisible.value = false;
+		})
 	}
 
 	function add(a, b) {
