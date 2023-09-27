@@ -9,3 +9,15 @@ export const loadRoleListByPage = (current,size,query={}) =>{
 		params:query
 	})
 }
+
+export const loadRoleById = (roleId) =>{
+	return req.get(`/role/queryRoleById/${roleId}`)
+}
+
+export const addRole = (data) =>{
+	return req.post(`/role/addRole`,data)
+}
+
+export const updateRole = (data) =>{
+	return req.put(`/role/updateRole`,data)
+}

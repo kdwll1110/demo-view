@@ -1,22 +1,23 @@
 <template>
-	<el-card shadow="never" size="small">
+	
+	<el-card shadow="never" size="small" >
 		<template #header>
 			<div class="card-header">
-				<el-button type="success" @click="openDialog(0)">
-					新增顶级菜单
+				<el-button type="success" @click="openDialog(1)">
+					<el-icon><Plus/></el-icon>
+					新增
 				</el-button>
 			</div>
 		</template>
 
-		<el-table v-loading="loading" :data="menuList" highlight-current-row :tree-props="{
+		<el-table :data="menuList" highlight-current-row :tree-props="{
           children: 'children',
           hasChildren: 'hasChildren',
         }" row-key="id" default-expand-all border size="small" @row-click="onRowClick">
 			<el-table-column label="菜单名称" min-width="200">
 				<template #default="scope">
-					<span v-if="scope.row.icon" style="display: inline-block;width: 1em;height: 1em;line-height: 1em;">
-						<component :is="scope.row.icon" />
-					</span>
+					<component :is="scope.row.icon"
+						style="display: inline-block;width: 12px;position: relative;top: 2px;" />
 					<span>{{ scope.row.name }}</span>
 				</template>
 			</el-table-column>
@@ -47,13 +48,13 @@
 			<el-table-column fixed="right" align="center" label="操作" width="220">
 				<template #default="scope">
 					<el-button v-if="scope.row.type == 1 || scope.row.type == 2" type="primary" link size="small"
-						@click.stop="openAddDialog(scope.row.id)">
+						@click.stop="openDialog(scope.row.id)">
 						<el-icon>
 							<Plus />
 						</el-icon>新增
 					</el-button>
 
-					<el-button type="primary" link size="small" @click.stop="openUpDateDialog(scope.row.id)">
+					<el-button type="primary" link size="small" @click.stop="openDialog(undefined, scope.row.id)">
 						<el-icon>
 							<Edit />
 						</el-icon>编辑
@@ -70,48 +71,54 @@
 		</el-table>
 	</el-card>
 
-	<el-dialog v-model="dialog.visible" :title="dialog.title" destroy-on-close append-to-body width="750px"
+	<el-dialog v-model="dialog.status" :title="dialog.title" destroy-on-close append-to-body width="750px"
 		@close="closeDialog">
-		<el-form ref="menuFormRef" :model="formData" label-width="100px">
+		<el-form ref="menuFormRef" :model="formData" label-width="100px" :rules="rules">
 			<el-form-item label="父级菜单" prop="parentId">
-				<el-input v-model="formData.parentId" placeholder="父级菜单" />
+				<el-tree-select v-model="formData.parentId" placeholder="选择上级菜单" :data="menuOptions" filterable
+					check-strictly :render-after-expand="false" />
 			</el-form-item>
 
-			<el-form-item label="菜单名称" prop="name">
+			<el-form-item label="菜单名称" prop="name" style="width: 680px">
 				<el-input v-model="formData.name" placeholder="请输入菜单名称" />
 			</el-form-item>
 
 			<el-form-item label="菜单类型" prop="type">
 				<el-radio-group v-model="formData.type" @change="onMenuTypeChange">
-					<el-radio label="1">目录</el-radio>
-					<el-radio label="2">菜单</el-radio>
-					<el-radio label="3">按钮</el-radio>
+					<el-radio :label="1">目录</el-radio>
+					<el-radio :label="2">菜单</el-radio>
+					<el-radio :label="3">按钮</el-radio>
 				</el-radio-group>
 			</el-form-item>
 
 			<el-form-item v-if="
-	        formData.type == 1 ||
+	        formData.type == 1||
 	        formData.type == 2
-	      " label="路由路径" prop="path">
-				<el-input v-if="formData.type == 1" v-model="formData.path" placeholder="system" />
-				<el-input v-else v-model="formData.path" placeholder="user" />
+	      " label="路由路径" prop="path" style="width: 680px">
+				<el-input v-if="formData.type == 1" v-model="formData.path" placeholder="systemmanage" />
+				<el-input v-else v-model="formData.path" placeholder="usermanage" />
 			</el-form-item>
 
 			<!-- 组件页面完整路径 -->
 			<el-form-item v-if="formData.type == 2" label="页面路径" prop="component">
-				<el-input v-model="formData.component" placeholder="system/user/index" style="width: 95%">
+				<el-input v-model="formData.component" placeholder="SystemManage/UserManage" style="width: 95%">
 					<template v-if="formData.type == 2" #prepend>src/views/</template>
 					<template v-if="formData.type == 2" #append>.vue</template>
 				</el-input>
 			</el-form-item>
 
 			<!-- 权限标识 -->
-			<el-form-item v-if="formData.type == 3" label="权限标识" prop="perm">
+			<el-form-item v-if="formData.type == 3" label="权限标识" prop="perms">
 				<el-input v-model="formData.perms" placeholder="sys:user:add" />
 			</el-form-item>
 
+			<el-form-item v-if="formData.type !== 3" label="图标" style="width: 680px">
+				<el-input v-model="formData.icon" placeholder="参考el-icon,手动输入图标,如：User、Delete、Edit..." />
+			</el-form-item>
+
+
 			<el-form-item v-if="formData.type !== 3" label="状态">
-				<el-radio-group v-model="formData.visible">
+				<el-radio-group v-model="formData.status">
 					<el-radio :label="1">显示</el-radio>
 					<el-radio :label="0">隐藏</el-radio>
 				</el-radio-group>
@@ -124,7 +131,7 @@
 
 		<template #footer>
 			<div class="dialog-footer">
-				<el-button type="primary" @click="submitAddForm">确 定</el-button>
+				<el-button type="primary" @click="submitForm">确 定</el-button>
 				<el-button @click="closeDialog">取 消</el-button>
 			</div>
 		</template>
@@ -135,48 +142,206 @@
 <script setup>
 	import {
 		ref,
-		onMounted
+		onMounted,
+		reactive
 	} from 'vue'
 	import {
 		loadRoleListByPage
 	} from '@/api/role.js'
 	import {
 		loadAllMenu,
-		loadMenuByRoleId,
-		editMenuByRoleId
+		addMenu,
+		editMenu,
+		loadMenuById,
+		deleteMenu
 	} from '@/api/menu.js'
 	import {
-		ElMessage
+		ElMessage,
+		ElMessageBox
 	} from 'element-plus'
+
+	const rules = reactive({
+		parentId: [{
+			required: true,
+			message: "请选择顶级菜单",
+			trigger: "blur"
+		}],
+		name: [{
+			required: true,
+			message: "请输入菜单名称",
+			trigger: "blur"
+		}],
+		type: [{
+			required: true,
+			message: "请选择菜单类型",
+			trigger: "blur"
+		}],
+		path: [{
+			required: true,
+			message: "请输入路由路径",
+			trigger: "blur"
+		}],
+		component: [{
+			required: true,
+			message: "请输入组件完整路径",
+			trigger: "blur"
+		}]
+	});
 
 	const menuList = ref([])
 	const parentBorder = ref(false)
 	const childBorder = ref(false)
-	const loading = ref(false)
 	const dialog = ref({
-		visible: false,
+		status: false,
 		title: ''
 	})
+	const menuCacheData = ref({
+		type: "",
+		path: "",
+	});
 
-	const formData = ref({})
+	const formData = ref({
+		parentId: 1,
+		status: 1,
+		sort: 1,
+		type: 2,
+	})
+	const menuFormRef = ref()
+	const menuOptions = ref([])
 
+	//列表加载
 	function toLoadAllMenu() {
 		loadAllMenu().then(res => {
 			menuList.value = res.data
 		})
 	}
 
+	/* 打开弹窗*/
+	function openDialog(parentId, menuId) {
+		console.log(parentId, menuId)
 
+		loadAllMenu()
+			.then(res => {
+				menuOptions.value = [{
+					value: 1,
+					label: '顶级菜单',
+					children: dataFormat(res.data, 1)
+				}]
+			})
+			.then(() => {
+				dialog.value.status = true
+				if (menuId) {
+					dialog.value.title = "编辑菜单";
+					loadMenuById(menuId).then(({
+						data
+					}) => {
+						console.log(data)
+						//Object.assign(formData, data);
+						formData.value = data
+						console.log(formData.value)
+						menuCacheData.value.type = data.type;
+						menuCacheData.value.path = data.path ?? ""; //空值合并运算符
+					});
+				} else {
+					dialog.value.title = "新增菜单";
+					formData.value.parentId = parentId;
+				}
+			})
+	}
+	//格式数据
+	function dataFormat(list, parentId) {
+		let arr = []
+		list.forEach(m => {
+			if (m.parentId == parentId) {
+				const obj = {
+					label: m.name,
+					value: m.id,
+					children: dataFormat(m.children, m.id)
+				}
+				arr.push(obj)
+			}
+		})
+		return arr
+	}
 
-	function openAddDialog(currentMenuId) {
-		dialog.value.visible = true
-		dialog.value.title = '新增'
-		console.log(currentMenuId)
+	/** 菜单类型切换事件处理 */
+	function onMenuTypeChange() {
+		// 切换清空
+		formData.value.path = ""
+		formData.value.component = ""
+		formData.value.perms = ""
+	}
+
+	/** 菜单保存提交 */
+	function submitForm() {
+		menuFormRef.value.validate((isValid) => {
+			if (isValid) {
+				const menuId = formData.value.id;
+				if (menuId) {
+					editMenu(menuId, formData.value).then((res) => {
+						ElMessage.success("修改成功");
+						closeDialog();
+						toLoadAllMenu()
+					});
+				} else {
+					addMenu(formData.value).then((res) => {
+						ElMessage.success("新增成功");
+						closeDialog();
+						toLoadAllMenu()
+					});
+				}
+			}
+		});
+	}
+
+	/** 删除菜单 */
+	function handleDelete(menuId) {
+		if (!menuId) {
+			ElMessage.warning("请勾选删除项");
+			return false;
+		}
+
+		ElMessageBox.confirm(
+				'确认删除已选中的数据项?',
+				'警告', {
+					confirmButtonText: "确定",
+					cancelButtonText: "取消",
+					type: "warning",
+				}
+			)
+			.then(() => {
+				deleteMenu(menuId).then((res) => {
+					if (!res.success) {
+						return ElMessage.success(res.msg);
+					}
+					ElMessage.success(res.msg);
+					toLoadAllMenu()
+				});
+			})
+			.catch(() => ElMessage.info("已取消删除"))
+
 
 	}
 
-	function submitAddForm() {
-		console.log(formData.value)
+
+	/** 关闭弹窗 */
+	function closeDialog() {
+		dialog.value.status = false;
+		resetForm();
+	}
+
+	/** 重置表单 */
+	function resetForm() {
+		menuFormRef.value.resetFields();
+		menuFormRef.value.clearValidate();
+
+		formData.value.id = undefined;
+		formData.value.parentId = 1;
+		formData.value.status = 1;
+		formData.value.sort = 1;
+		formData.value.perms = undefined;
+		formData.value.component = undefined;
+		formData.value.path = undefined;
 	}
 
 	onMounted(() => {
@@ -190,4 +355,5 @@
 		justify-content: space-between;
 		align-items: center;
 	}
+
 </style>

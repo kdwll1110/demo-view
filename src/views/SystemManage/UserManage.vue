@@ -1,4 +1,42 @@
 <template>
+	
+	<el-card shadow="always" size="small" style="margin-bottom: 20px;">
+		<div>
+			<el-row justify="left" align="middle" :gutter="10">
+				<el-col :span="2"><span style="opacity: 0.7;">关键字</span></el-col>
+				<el-col :span="4">
+					<el-input v-model="queryForm.username" clearable placeholder="请输入用户名..." />
+				</el-col>
+				<el-col :span="4">
+					<el-input v-model="queryForm.telephone" clearable placeholder="请输入手机号码..." />
+				</el-col>
+				<el-col :span="4">
+					<el-select v-model="queryForm.status" clearable placeholder="默认查询所有">
+					    <el-option label="正常" :value="1"/>
+						<el-option label="停用" :value="0"/>
+					  </el-select>
+				</el-col>
+				<el-col :span="2">
+					<el-button type="primary" @click="toLoadUserList">
+						<el-icon>
+							<Search />
+						</el-icon>
+						搜索
+					</el-button>
+				</el-col>
+				<el-col :span="1">
+					<el-button @click="resetQuery">
+						<el-icon>
+							<Refresh />
+						</el-icon>
+						重置
+					</el-button>
+				</el-col>
+			</el-row>
+	
+		</div>
+	</el-card>
+	
 	<el-table :data="userTableData" style="width: 100%;font-size: 12px;" :border="true" :highlight-current-row="true">
 		<el-table-column label="用户名">
 			<template #default="scope">
@@ -24,7 +62,7 @@
 		</el-table-column>
 		<el-table-column label="状态">
 			<template #default="scope">
-				<span>{{ scope.row.status==1?'正常':'禁用' }}</span>
+				<span>{{ scope.row.status==1?'正常':'停用' }}</span>
 			</template>
 		</el-table-column>
 		<el-table-column label="操作">
@@ -44,19 +82,19 @@
 
 	<el-dialog v-model="dialogFormVisible" title="编辑">
 		<el-form :model="userForm">
-			<el-form-item label="用户名" :label-width="formLabelWidth">
+			<el-form-item label="用户名" >
 				<el-input v-model="userForm.username" disabled />
 			</el-form-item>
-			<el-form-item label="手机号" :label-width="formLabelWidth">
+			<el-form-item label="手机号" >
 				<el-input v-model="userForm.telephone" disabled />
 			</el-form-item>
-			<el-form-item label="邮箱" :label-width="formLabelWidth">
+			<el-form-item label="邮箱" >
 				<el-input v-model="userForm.email" disabled />
 			</el-form-item>
-			<el-form-item label="头像" :label-width="formLabelWidth">
+			<el-form-item label="头像" >
 				<el-input v-model="userForm.avatar" disabled />
 			</el-form-item>
-			<el-form-item label="当前角色" :label-width="formLabelWidth">
+			<el-form-item label="当前角色" >
 				<el-select v-model="userForm.roles">
 					<el-option 
 					:label="role.name" 
@@ -65,7 +103,7 @@
 					:key="role.id" />
 				</el-select>
 			</el-form-item>
-			<el-form-item label="状态" :label-width="formLabelWidth">
+			<el-form-item label="状态" >
 				<el-select v-model="userForm.status">
 					<el-option label="使用" value="1" />
 					<el-option label="停用" value="0" />
@@ -105,7 +143,7 @@
 
 	const dialogFormVisible = ref(false)
 	const userForm = ref({})
-	const formLabelWidth = '140px'
+	
 	
 	const roleList = ref([])
 
@@ -140,6 +178,13 @@
 
 	function deleteCurrent(user) {
 
+	}
+	
+	function resetQuery() {
+		queryForm.value.username = undefined;
+		queryForm.value.telephone = undefined;
+		queryForm.value.status = undefined;
+		toLoadUserList()
 	}
 	
 	function toLoadRoleList(){
