@@ -30,7 +30,6 @@ let routes = [{
 			title: '首页',
 		},
 		children: [],
-
 	},
 	{
 		path: '/login',
@@ -67,9 +66,11 @@ async function loadAsyncMenu(to, next) {
 
 	//根据用户的角色 查询对应的路由
 	const res = await loadMenu()
-
-	const asyncRoutes = asyncRouteHandler(res.data.menuList)
-
+	if(!res.data){
+		return next('/login')
+	}
+	const asyncRoutes = await asyncRouteHandler(res.data.menuList)
+	
 	userStore.setUserMenu({
 		userMenu: res.data.menuList
 	})
@@ -130,9 +131,9 @@ return routes.filter(route => {
 router.beforeEach((to, from, next) => {
 
 	const userStore = useUserStore()
-
 	if (to.path === '/login') {
 		sessionStorage.clear()
+		userStore.$reset()
 		return next()
 	}
 

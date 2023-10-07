@@ -36,12 +36,14 @@
 					</el-icon>
 					新增
 				</el-button>
+				<el-button type="danger" @click="deleteCurrent()">批量删除</el-button>
 			</div>
 		</template>
 
 
-		<el-table :data="roleTableData" style="width: 100%;font-size: 12px;" :border="true"
-			:highlight-current-row="true">
+		<el-table :data="roleTableData" style="width: 100%;font-size: 12px;" :border="true" ref="multipleTableRef"
+			:highlight-current-row="true" @selection-change="handleSelectionChange" :row-key="getRowKey">
+			<el-table-column type="selection" width="55" :reserve-selection="true" />
 			<el-table-column label="角色名称">
 				<template #default="scope">
 					<div style="display: flex; align-items: center">
@@ -65,7 +67,7 @@
 				<template #default="scope">
 					<el-button size="small" @click="openDialog(scope.row.id)">编辑</el-button>
 					<el-button size="small" type="primary" @click="toSettingPermission(scope.row)">分配权限</el-button>
-					<el-button size="small" type="danger" @click="deleteCurrent(scope.row)">删除</el-button>
+					<el-button size="small" type="danger" @click="deleteCurrent(scope.row.id)">删除</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -121,7 +123,10 @@
 	} from 'vue'
 	import {
 		loadRoleListByPage,
-		loadRoleById
+		loadRoleById,
+		addRole,
+		editRole,
+		deleteRole
 	} from '@/api/role.js'
 	import {
 		loadAllMenu,
@@ -129,7 +134,8 @@
 		editMenuByRoleId
 	} from '@/api/menu.js'
 	import {
-		ElMessage
+		ElMessage,
+		ElMessageBox
 	} from 'element-plus'
 
 	const queryForm = ref({
@@ -173,6 +179,10 @@
 		}],
 	});
 
+	const multipleSelection = ref([])
+	
+	const multipleTableRef = ref()
+
 	function toLoadRoleList() {
 		loadRoleListByPage(current.value, size.value, queryForm.value).then(res => {
 			roleTableData.value = res.data.info
@@ -192,12 +202,6 @@
 		toLoadRoleList()
 	}
 
-	function toEdit(role) {
-		dialogFormVisible.value = true
-		roleForm.value = role
-		toLoadRoleList()
-	}
-
 	const dialog = ref({
 		visible: false,
 	});
@@ -207,6 +211,8 @@
 		name: "",
 	});
 	const roleFormRef = ref()
+
+	const needDeleteIds = ref([])
 
 	/** 打开角色表单弹窗 */
 	function openDialog(roleId) {
@@ -244,16 +250,16 @@
 			if (valid) {
 				const roleId = formData.value.id;
 				if (roleId) {
-					updateRole(roleId, formData.value)
-						.then(() => {
-							ElMessage.success("修改成功");
+					editRole(roleId, formData.value)
+						.then((res) => {
+							ElMessage.success(res.msg);
 							closeDialog();
 							resetQuery();
 						})
 				} else {
 					addRole(formData.value)
-						.then(() => {
-							ElMessage.success("新增成功");
+						.then((res) => {
+							ElMessage.success(res.msg);
 							closeDialog();
 							resetQuery();
 						})
@@ -262,12 +268,43 @@
 		});
 	}
 
-	function confirmEdit() {
-
+	function handleSelectionChange(val) {
+		multipleSelection.value = val
 	}
 
-	function deleteCurrent(role) {
+	//保存选中的数据id,row-key就是要指定一个key标识这一行的数据
+	function getRowKey(row) {
+		return row.id
+	}
 
+	//删除角色
+	function deleteCurrent(roleId) {
+		ElMessageBox.confirm(
+				'确认删除已选中的数据项?',
+				'警告', {
+					confirmButtonText: "确定",
+					cancelButtonText: "取消",
+					type: "warning",
+				}
+			)
+			.then(() => {
+				needDeleteIds.value = []
+				if (roleId) { //单个删除
+					needDeleteIds.value.push(roleId)
+				} else { //批量删除
+					needDeleteIds.value = multipleSelection.value.map(m => m.id)
+				}
+				deleteRole(needDeleteIds.value).then(res => {
+					if (res.success) {
+						ElMessage.success(res.msg)
+						toLoadRoleList()
+						multipleTableRef.value.clearSelection()
+					} else {
+						ElMessage.warning(res.msg)
+					}
+				})
+			})
+			.catch(() => ElMessage.info("已取消删除"))
 	}
 
 	async function toSettingPermission(role) {
@@ -278,12 +315,14 @@
 		})
 		await loadMenuByRoleId(role.id).then(res => {
 			//生成ids
-			recursiveGenerationIds(res.data)
-			const ids = defaultCheckedKeys.value.map(r => r.id);
-			ids.forEach((i, n) => {
-				treeRef.value.setChecked(i, true, false)
-			});
-
+			let list = res.data;
+			if (list && list.length > 0) {
+				recursiveGenerationIds(res.data)
+				const ids = defaultCheckedKeys.value.map(r => r.id);
+				ids.forEach((i, n) => {
+					treeRef.value.setChecked(i, true, false)
+				});
+			}
 		})
 	}
 
@@ -333,7 +372,7 @@
 
 	.card-header {
 		display: flex;
-		justify-content: space-between;
+		justify-content: flex-start;
 		align-items: center;
 	}
 </style>

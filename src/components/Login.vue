@@ -73,8 +73,6 @@
 		form.validate(async (valid)=>{
 			if(valid){
 				const res =await login(loginForm.value)
-				
-				//console.log(res)
 				router.push(route.query.redirect || '/')
 				
 			}else{

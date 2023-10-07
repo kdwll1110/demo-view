@@ -20,6 +20,9 @@ export const useUserStore = defineStore({
 		//{userMenu:值}
 		setUserMenu(patchData){
 			this.$patch(patchData)
+		},
+		setAvatar(avatar){
+			this.userInfo.avatar = avatar
 		}
 	}
 })

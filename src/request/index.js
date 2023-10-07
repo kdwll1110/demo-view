@@ -1,7 +1,6 @@
 
-
 import Axios from 'axios'
-import {ElMessageBox} from 'element-plus'
+import {ElMessageBox,ElMessage} from 'element-plus'
 
 
 const req = Axios.create({
@@ -20,10 +19,16 @@ req.interceptors.request.use((config)=>{
 
 
 req.interceptors.response.use((response)=>{
-	if(response.data.data.token){
+	if(response.data.data && response.data.data.token){
 		//保存到本地存储
 		sessionStorage.setItem('token',response.data.data.token)
-		
+	}
+	
+	if(response.data && !response.data.success){
+		return ElMessage({
+			message:response.data.msg,
+			type:'warning'
+		})
 	}
 	return response.data
 	

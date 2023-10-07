@@ -279,13 +279,13 @@
 				const menuId = formData.value.id;
 				if (menuId) {
 					editMenu(menuId, formData.value).then((res) => {
-						ElMessage.success("修改成功");
+						ElMessage.success("操作成功");
 						closeDialog();
 						toLoadAllMenu()
 					});
 				} else {
 					addMenu(formData.value).then((res) => {
-						ElMessage.success("新增成功");
+						ElMessage.success("操作成功");
 						closeDialog();
 						toLoadAllMenu()
 					});

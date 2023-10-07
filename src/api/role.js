@@ -18,6 +18,10 @@ export const addRole = (data) =>{
 	return req.post(`/role/addRole`,data)
 }
 
-export const updateRole = (data) =>{
+export const editRole = (roleId,data) =>{
 	return req.put(`/role/updateRole`,data)
+}
+
+export const deleteRole = (roleIds) =>{
+	return req.post(`/role/deleteRole`,roleIds)
 }

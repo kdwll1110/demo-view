@@ -18,3 +18,19 @@ export const loadUserListByPage = (current,size,query={}) => {
 		params:query
 	})
 }
+
+export const loadUserById = (userId)=>{
+	return req.get(`/user/queryUserById/${userId}`)
+}
+
+export const addUser = (data) =>{
+	return req.post(`/user/addUser`,data)
+}
+
+export const editUser = (userId,data) =>{
+	return req.put(`/user/updateUser`,data)
+}
+
+export const deleteUser = (userIds) =>{
+	return req.post(`/user/deleteUser`,userIds)
+}
