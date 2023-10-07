@@ -70,11 +70,6 @@
 					<span>{{ scope.row.email }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="头像">
-				<template #default="scope">
-					<span>{{ scope.row.avatar?scope.row.avatar:'暂未设置'}}</span>
-				</template>
-			</el-table-column>
 			<el-table-column label="状态">
 				<template #default="scope">
 					<span>{{ scope.row.status==1?'正常':'停用' }}</span>
@@ -120,11 +115,7 @@
 					<el-option v-for="item in roleList" :key="item.id" :label="item.name" :value="item.id" />
 				</el-select>
 			</el-form-item>
-
-			<el-form-item label="头像">
-				<el-input v-model="formData.avatar" disabled />
-			</el-form-item>
-
+			
 			<el-form-item label="状态" prop="status">
 				<el-radio-group v-model="formData.status">
 					<el-radio label="1">正常</el-radio>
