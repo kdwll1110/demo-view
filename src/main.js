@@ -21,7 +21,7 @@ import ElementPlus from 'element-plus'
 import 'element-plus/theme-chalk/index.css'
 
 import * as ElIcons from '@element-plus/icons-vue'
-
+import piniaPersist from 'pinia-plugin-persist'
 
 let app = createApp(Start);
 
@@ -38,7 +38,9 @@ Object.keys(ElIcons).forEach(k=>{
 
 
 //使用store对象.
-app.use(createPinia())
+const pinia =  createPinia()
+pinia.use(piniaPersist)
+app.use(pinia)
 
 app.config.warnHandler = () => null
 //最后才挂载

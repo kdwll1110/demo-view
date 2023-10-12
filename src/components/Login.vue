@@ -75,6 +75,7 @@
 				const res =await login(loginForm.value)
 				router.push(route.query.redirect || '/')
 				
+				sessionStorage.setItem("activeMenu","/")
 			}else{
 				console.log(2)
 			}

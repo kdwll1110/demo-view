@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia'
 
 
-import req from '@/request'
-
 
 export const useUserStore = defineStore({
 	id:'user',

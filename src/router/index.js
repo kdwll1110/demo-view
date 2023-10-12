@@ -24,7 +24,7 @@ let routes = [{
 	{
 		path: '/index',
 		name: 'Index',
-		component: () => import('@/components/Index.vue'),
+		component: () => import('@/layout/Index.vue'),
 		meta: {
 			isShow: true,
 			title: '首页',

@@ -6,6 +6,12 @@
 	background-color="#545c64" 
 	class="el-menu-vertical-demo"
 		text-color="#fff">
+		<el-menu-item :index="`/`">
+			<template #title>
+				<el-icon><House /></el-icon>
+				<span>首页</span>
+			</template>
+		</el-menu-item>
 		<template v-for="menu in routes">
 			<template v-if="menu.children.length>0">
 				<el-sub-menu :index="`${menu.path}`">
@@ -31,18 +37,24 @@
 		ref,onMounted
 	} from 'vue'
 	import SidebarItem from './SidebarItem.vue'
-
+	import {
+		useAppStore
+	} from '@/store/app.js'
+		import {storeToRefs} from 'pinia'
 	defineProps({
 		routes: Object
 	})
 	
 	const activeItem = ref('')
-	
+	const appStore = useAppStore()
+	const {isShow,a} = storeToRefs(appStore)
 	function hasSelect(index,indexPath,item){
-		// console.log(index)
-		// console.log(indexPath)
-		// console.log(item)
 		sessionStorage.setItem("activeMenu",index)
+		if(index !== '/'){
+			appStore.setIsShow(false)
+		}else{
+			appStore.setIsShow(true)
+		}
 	}
 	
 	function save(){

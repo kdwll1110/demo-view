@@ -27,7 +27,7 @@
 		</div>
 	</el-card>
 
-	<el-card shadow="never" size="small">
+	<el-card shadow="always" size="small">
 		<template #header>
 			<div class="card-header">
 				<el-button type="success" @click="openDialog()">

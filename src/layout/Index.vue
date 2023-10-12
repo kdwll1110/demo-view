@@ -1,15 +1,5 @@
 <template>
 	<div class="common-layout">
-		<!-- <el-container>
-			<el-aside>
-				<el-scrollbar>
-					<Sidebar :routes="routes"></Sidebar>
-				</el-scrollbar>
-			</el-aside>
-			<el-main>
-				<router-view></router-view>
-			</el-main>
-		</el-container> -->
 		<el-container>
 			<el-aside>
 				<el-scrollbar>
@@ -35,7 +25,8 @@
 					</el-row>
 				</el-header>
 				<el-main>
-					<router-view></router-view>
+					<Index v-if="isShow" />
+					<router-view v-else></router-view>
 				</el-main>
 			</el-container>
 		</el-container>
@@ -50,22 +41,24 @@
 		computed
 	} from 'vue'
 
-	import axios from '@/request/index.js'
 	import {
 		useRouter
 	} from 'vue-router'
 	import Sidebar from '../layout/sidebar/Sidebar.vue'
+	import Index from '../views/Index.vue'
 	import {
-		useUserStore
-	} from '@/store/user.js'
+		useAppStore
+	} from '@/store/app.js'
+	import {storeToRefs} from 'pinia'
 
 	const router = useRouter()
 	const routes = computed(() => {
 		let rts = router.getRoutes().filter(r => r.meta.isShow && r.meta.parentId == 1)
 		return rts;
 	})
+	const appStore = useAppStore()
+	const {isShow,a} = storeToRefs(appStore)
 	
-
 	onMounted(() => {
 	})
 	
@@ -107,6 +100,7 @@
 	.block-col-2 {
 		text-align: end;
 		background-color: pink;
+		border-bottom: 1px solid gainsboro;
 	}
 
 	.el-dropdown-link {
